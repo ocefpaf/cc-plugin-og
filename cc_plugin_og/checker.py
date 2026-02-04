@@ -266,8 +266,14 @@ class OGChecker(OGChecker):
             if 'https' in uri:
                 messages.append(f"variable {var_name} vocabulary {uri} contains https. Vocabulary URIs use http")
                 continue
+            if uri[-1] != '/':
+                messages.append(f"variable {var_name} vocabulary {uri} should end with a forward slash '/'")
+                continue
             if uri not in og1_uri_list:
                 messages.append(f"variable {var_name} vocabulary {uri} not found in NERC OG1 collection")
+                continue
+            if 'long_name' not in attrs:
+                messages.append(f"variable {var_name} should have attribute 'long_name'")
                 continue
             score += 1
 
