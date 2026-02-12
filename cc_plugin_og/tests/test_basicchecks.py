@@ -1,16 +1,12 @@
 """
 cc_plugin_og/tests/test_basicchecks.py
 """
-import os
-import unittest
-from urllib.parse import urljoin
 
-import numpy as np
-import requests_mock
-from compliance_checker.tests.helpers import MockTimeSeries
+import unittest
+
 from netCDF4 import Dataset
 
-#from cc_plugin_og import util
+# from cc_plugin_og import util
 from cc_plugin_og.tests.resources import STATIC_FILES
 
 from ..checker import OGChecker
@@ -31,7 +27,9 @@ class TestOGCheck(unittest.TestCase):
         if name[0] not in ["ion", "pyon"]:
             return f"{name[-1]} ({'.'.join(name[:-1])})"
         else:
-            return f"{name[-1]} ({'.'.join(name[:-2])} : {'.'.join(name[-2:])})"
+            return (
+                f"{name[-1]} ({'.'.join(name[:-2])} : {'.'.join(name[-2:])})"
+            )
 
     __str__ = __repr__
 

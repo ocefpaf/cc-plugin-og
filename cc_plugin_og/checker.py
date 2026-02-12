@@ -1,21 +1,23 @@
-import re
 import datetime
+import re
+
 import requests
-from compliance_checker import __version__
 from compliance_checker.base import BaseCheck
-from compliance_checker.runner import ComplianceChecker, CheckSuite
 
 from cc_plugin_og import OGChecker
 
-class OGChecker(OGChecker):
 
+class OGChecker(OGChecker):
     _cc_spec_version = "1.0"
     _cc_description = f"og {_cc_spec_version} compliance-checker"
-    _cc_display_headers = {3: "Mandatory", 2: "Highly Recommended", 1: "Suggested"}
+    _cc_display_headers = {
+        3: "Mandatory",
+        2: "Highly Recommended",
+        1: "Suggested",
+    }
 
     METHODS_REGEX = re.compile(r"(\w+: *\w+) \((\w+: *\w+)\) *")
     PADDING_TYPES = ["none", "low", "high", "both"]
-
 
     def __init__(self):
         pass
@@ -29,7 +31,7 @@ class OGChecker(OGChecker):
         messages = []
         desc = "Check for mandatory dimensions."
         required_dims = [
-            'N_MEASUREMENTS',
+            "N_MEASUREMENTS",
         ]
         out_of = len(required_dims)
 
@@ -78,7 +80,6 @@ class OGChecker(OGChecker):
 
         return self.make_result(level, score, out_of, desc, messages)
 
-
     def check_attribute_names_are_lowercase(self, ds):
         """
         Check that all attribute names are lowercase.
@@ -98,7 +99,9 @@ class OGChecker(OGChecker):
             out_of += 1
             test = attr.lower()
             if test != attr:
-                messages.append(f"Global attribute {attr} should be lowercase: {test}")
+                messages.append(
+                    f"Global attribute {attr} should be lowercase: {test}",
+                )
             else:
                 score += 1
 
@@ -117,12 +120,13 @@ class OGChecker(OGChecker):
                     breakpoint()
 
                 if test != attr:
-                    messages.append(f"Variable {variable} attribute {attr} should be lowercase: {test}")
+                    messages.append(
+                        f"Variable {variable} attribute {attr} should be lowercase: {test}",
+                    )
                 else:
                     score += 1
 
         return self.make_result(level, score, out_of, desc, messages)
-
 
     def check_variable_names_are_capitalized(self, ds):
         """
@@ -138,7 +142,9 @@ class OGChecker(OGChecker):
         for variable in ds.variables:
             test = variable.upper()
             if test != variable:
-                messages.append(f"Variable {variable} should be capitalized: {test}")
+                messages.append(
+                    f"Variable {variable} should be capitalized: {test}",
+                )
             else:
                 score += 1
 
@@ -155,23 +161,23 @@ class OGChecker(OGChecker):
         desc = "Check for mandatory global attributes."
 
         required_attributes = [
-            'title',
-            'platform',
-            'platform_vocabulary',
-            'id',
-            'comment',
-            'contributor_name',
-            'contributor_email',
-            'contributor_role',
-            'contributor_role_vocabulary',
-            'contributing_institutions',
-            'contributing_institutions_role',
-            'contributing_institutions_role_vocabulary',
-            'rtqc_method',
-            'start_date',
-            'date_created',
-            'featureType',
-            'Conventions',
+            "title",
+            "platform",
+            "platform_vocabulary",
+            "id",
+            "comment",
+            "contributor_name",
+            "contributor_email",
+            "contributor_role",
+            "contributor_role_vocabulary",
+            "contributing_institutions",
+            "contributing_institutions_role",
+            "contributing_institutions_role_vocabulary",
+            "rtqc_method",
+            "start_date",
+            "date_created",
+            "featureType",
+            "Conventions",
         ]
 
         out_of = len(required_attributes)
@@ -182,7 +188,6 @@ class OGChecker(OGChecker):
                 messages.append(f"Global attribute {attribute} is missing")
 
         return self.make_result(level, score, out_of, desc, messages)
-    
 
     def check_sensors(self, ds):
         """
@@ -195,8 +200,8 @@ class OGChecker(OGChecker):
         desc = "sensors referred to in variables should be present"
         for variable in ds.variables:
             attrs = ds.variables[variable].ncattrs()
-            if 'sensor' in attrs:
-                sensors.append(ds.variables[variable].getncattr('sensor'))
+            if "sensor" in attrs:
+                sensors.append(ds.variables[variable].getncattr("sensor"))
 
         sensors = set(sensors)
         out_of = len(sensors)
@@ -210,7 +215,6 @@ class OGChecker(OGChecker):
 
         return self.make_result(level, score, out_of, desc, messages)
 
-
     def check_dates(self, ds):
         """
         Check that all dates in metadata are correctly formatted
@@ -219,8 +223,13 @@ class OGChecker(OGChecker):
         score = 0
         messages = []
         desc = "dates should be formatted as YYYYmmddTHHMMss"
-        
-        dates_to_check = ["start_date", "date_created", "time_coverage_start", "time_coverage_end"]
+
+        dates_to_check = [
+            "start_date",
+            "date_created",
+            "time_coverage_start",
+            "time_coverage_end",
+        ]
         attrs = ds.ncattrs()
         dates = set(dates_to_check).intersection(attrs)
         out_of = len(dates)
@@ -231,20 +240,22 @@ class OGChecker(OGChecker):
                 datetime.datetime.strptime(date_str, "%Y%m%dT%H%M%S")
                 score += 1
             except ValueError:
-                messages.append(f"Date {date_name}: {date_str} is not formatted as YYYYmmddTHHMMss")
+                messages.append(
+                    f"Date {date_name}: {date_str} is not formatted as YYYYmmddTHHMMss",
+                )
 
         return self.make_result(level, score, out_of, desc, messages)
-
 
     def check_variables_og1_url(self, ds):
         """
         Check that variable names are capitalized.
         """
         og1_collection = requests.get(
-            f'https://vocab.nerc.ac.uk/collection/OG1/current/?_profile=nvs&_mediatype=application/ld+json').json()
-        graph = og1_collection['@graph']
+            "https://vocab.nerc.ac.uk/collection/OG1/current/?_profile=nvs&_mediatype=application/ld+json",
+        ).json()
+        graph = og1_collection["@graph"]
         concepts = graph[:-1]
-        og1_uri_list = [concept['@id'] for concept in concepts]
+        og1_uri_list = [concept["@id"] for concept in concepts]
         level = BaseCheck.HIGH
         score = 0
         out_of = len(ds.variables)
@@ -253,25 +264,38 @@ class OGChecker(OGChecker):
 
         for var_name in ds.variables:
             variable = ds.variables[var_name]
-            if variable.dimensions != ('N_MEASUREMENTS',) or var_name[-3:] == '_QC':
+            if (
+                variable.dimensions != ("N_MEASUREMENTS",)
+                or var_name[-3:] == "_QC"
+            ):
                 score += 1
                 continue
             attrs = variable.ncattrs()
-            if 'vocabulary' not in attrs:
-                messages.append(f"variable {var_name} should have attribute 'vocabulary', value is a URI from the OG1 collection")
+            if "vocabulary" not in attrs:
+                messages.append(
+                    f"variable {var_name} should have attribute 'vocabulary', value is a URI from the OG1 collection",
+                )
                 continue
-            uri = variable.getncattr('vocabulary')
-            if 'https' in uri:
-                messages.append(f"variable {var_name} vocabulary {uri} contains https. Vocabulary URIs use http")
+            uri = variable.getncattr("vocabulary")
+            if "https" in uri:
+                messages.append(
+                    f"variable {var_name} vocabulary {uri} contains https. Vocabulary URIs use http",
+                )
                 continue
-            if uri[-1] != '/':
-                messages.append(f"variable {var_name} vocabulary {uri} should end with a forward slash '/'")
+            if uri[-1] != "/":
+                messages.append(
+                    f"variable {var_name} vocabulary {uri} should end with a forward slash '/'",
+                )
                 continue
             if uri not in og1_uri_list:
-                messages.append(f"variable {var_name} vocabulary {uri} not found in NERC OG1 collection")
+                messages.append(
+                    f"variable {var_name} vocabulary {uri} not found in NERC OG1 collection",
+                )
                 continue
-            if 'long_name' not in attrs:
-                messages.append(f"variable {var_name} should have attribute 'long_name'")
+            if "long_name" not in attrs:
+                messages.append(
+                    f"variable {var_name} should have attribute 'long_name'",
+                )
                 continue
             score += 1
 
