@@ -16,7 +16,6 @@ class OGException(Exception):
 
 
 class OGChecker(BaseNCCheck):
-
     _cc_spec = "og"
     _cc_url = "https://oceangliderscommunity.github.io/OG-format-user-manual/OG_Format.html"
     _cc_author = "Rob Cermak, Callum Rollo"
@@ -51,7 +50,10 @@ class OGChecker(BaseNCCheck):
         # TODO: THE GUTS OF THIS MAY NEED TO BE CHANGED
 
         self.meshes = {
-            m: {} for m in self.ds.get_variables_by_attributes(cf_role="mesh_topology")
+            m: {}
+            for m in self.ds.get_variables_by_attributes(
+                cf_role="mesh_topology",
+            )
         }
 
         for mesh in self.meshes.keys():

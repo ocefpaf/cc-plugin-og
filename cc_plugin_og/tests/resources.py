@@ -1,6 +1,7 @@
 """
 cc_plugin_og/tests/resources.py
 """
+
 import importlib
 import subprocess
 
