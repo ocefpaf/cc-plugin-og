@@ -1,0 +1,18 @@
+include *.txt
+include README.md
+include pyproject.toml
+
+graft cc_plugin_og
+
+prune .github
+prune *.egg-info
+prune docs
+
+exclude .coveragerc
+exclude ruff.toml
+exclude .gitignore
+exclude .pre-commit-config.yaml
+exclude *.yml
+exclude cc_plugin_og/_version.py
+
+recursive-exclude cc_plugin_og *.cdl
