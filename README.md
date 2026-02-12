@@ -42,7 +42,7 @@ python -m pip install .
 
 Install in an editable method allowing code changes in the source tree to take immediate effect:
 ```bash
-python -m pip install -e . 
+python -m pip install -e .
 ```
 
 #### Tests should now show up when you run compliance checker
