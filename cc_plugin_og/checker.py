@@ -115,9 +115,9 @@ class OGChecker(OGChecker):
                 out_of += 1
                 try:
                     test = attr.lower()
-                except Exception as inst:
-                    print("Exception: ", type(inst))
-                    breakpoint()
+                except Exception as err:
+                    msg = f"Expected str, got {type(err)}."
+                    raise ValueError from err(msg)
 
                 if test != attr:
                     messages.append(
