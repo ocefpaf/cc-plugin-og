@@ -6,41 +6,26 @@ This is a checker for [OG](https://oceangliderscommunity.github.io/OG-format-use
 
 It works with the [IOOS Compliance Checker](https://github.com/ioos/compliance-checker)
 
-**Note this code is in a pre-release state. Check back soon for the first release**
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-Please see LICENSE for the full license text.
-
-For a brief overview of the attributes the OG Checker runs through, check [here](/checks.md).
-
 ## Installation
 
-#### Clone this project
+### Basic installation with pop
+
+```bash
+pip install cc-checker-og
+```
+
+### Local editable installation
 
 Download code and install requirements:
+
 ```bash
-git clone https://github.com/uw-farlab/cc-plugin-og.git
+git clone https://github.com/ioos/cc-plugin-og.git
 cd cc-plugin-og
 python -m pip install -r requirements.txt
 ```
 
-Install for general use:
-```bash
-python -m pip install .
-```
-
 Install in an editable method allowing code changes in the source tree to take immediate effect:
+
 ```bash
 python -m pip install -e .
 ```
@@ -69,8 +54,27 @@ IOOS compliance checker available checker suites (code version):
  - ioos_sos:latest (3.1.1)
  ```
 
+## Usage
+
 To run this check against an OG netcdf file:
 
 ```bash
 $ compliance-checker -t og /path/to/file.nc
 ```
+
+## License
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Please see LICENSE for the full license text.
+
