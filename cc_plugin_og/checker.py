@@ -1,26 +1,48 @@
 import datetime
-import re
+from typing import ClassVar
 
 import requests
-from compliance_checker.base import BaseCheck
+from compliance_checker.base import BaseCheck, BaseNCCheck, Result
 
-from cc_plugin_og import OGChecker
+from cc_plugin_og import __version__
 
 
-class OGChecker(OGChecker):
+class OGChecker(BaseNCCheck):
+    _cc_spec = "og"
+    _cc_url = "https://oceangliderscommunity.github.io/OG-format-user-manual/OG_Format.html"
+    _cc_author = "Rob Cermak, Callum Rollo"
+    _cc_checker_version = __version__
     _cc_spec_version = "1.0"
     _cc_description = f"og {_cc_spec_version} compliance-checker"
-    _cc_display_headers = {
+    _cc_display_headers: ClassVar[dict[int, str]] = {
         3: "Mandatory",
         2: "Highly Recommended",
         1: "Suggested",
     }
 
-    METHODS_REGEX = re.compile(r"(\w+: *\w+) \((\w+: *\w+)\) *")
-    PADDING_TYPES = ["none", "low", "high", "both"]
-
     def __init__(self):
         pass
+
+    @classmethod
+    def beliefs(cls):
+        return {}
+
+    @classmethod
+    def make_result(cls, level, score, out_of, name, messages):
+        return Result(level, (score, out_of), name, messages)
+
+    def setup(self, ds):
+        """
+        Set up the OG checker by assigning the dataset
+
+        **No validation of the attribute is performed.**
+
+        Parameters
+        ----------
+        ds : netCDF4 dataset object
+        """
+
+        self.ds = ds
 
     def check_dimensions(self, ds):
         """
@@ -36,7 +58,7 @@ class OGChecker(OGChecker):
         out_of = len(required_dims)
 
         for dimension in required_dims:
-            test = dimension in ds.dimensions.keys()
+            test = dimension in ds.dimensions
             score += int(test)
             if not test:
                 messages.append(f"Dimension {dimension} is missing")
@@ -113,12 +135,11 @@ class OGChecker(OGChecker):
                 if attr in attr_exceptions:
                     continue
                 out_of += 1
-                try:
-                    test = attr.lower()
-                except Exception as err:
-                    msg = f"Expected str, got {type(err)}."
-                    raise ValueError from err(msg)
+                if not isinstance(attr, str):
+                    msg = f"Expected str, got {type(attr)}."
+                    raise TypeError(msg)
 
+                test = attr.lower()
                 if test != attr:
                     messages.append(
                         f"Variable {variable} attribute {attr} should be lowercase: {test}",
@@ -237,7 +258,7 @@ class OGChecker(OGChecker):
         for date_name in dates:
             date_str = ds.getncattr(date_name)
             try:
-                datetime.datetime.strptime(date_str, "%Y%m%dT%H%M%S")
+                datetime.datetime.strptime(date_str, "%Y%m%dT%H%M%S%z")
                 score += 1
             except ValueError:
                 messages.append(
