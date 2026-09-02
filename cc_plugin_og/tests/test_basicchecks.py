@@ -22,7 +22,12 @@ def dataset():
     Return a pairwise object for the dataset
     """
     fname = STATIC_FILES["good_dataset"]
-    dataset = Dataset(fname, "r")
+    dataset = Dataset(
+        fname,
+        mode="r",
+        diskless=True,
+        persist=False,
+    )
     yield dataset
     dataset.close()
 
