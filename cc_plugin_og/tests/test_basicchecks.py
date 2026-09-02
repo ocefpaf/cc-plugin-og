@@ -2,54 +2,41 @@
 cc_plugin_og/tests/test_basicchecks.py
 """
 
-import unittest
-
+import pytest
+from compliance_checker.base import Result
+from compliance_checker.suite import CheckSuite
 from netCDF4 import Dataset
 
-# from cc_plugin_og import util
+from cc_plugin_og.checker import OGChecker
 from cc_plugin_og.tests.resources import STATIC_FILES
 
-from ..checker import OGChecker
+
+@pytest.fixture
+def check():
+    return OGChecker()
 
 
-class TestOGCheck(unittest.TestCase):
-    # @see
-    # http://www.saltycrane.com/blog/2012/07/how-prevent-nose-unittest-using-docstring-when-verbosity-2/
-    def shortDescription(self):
-        return None
+@pytest.fixture
+def dataset():
+    """
+    Return a pairwise object for the dataset
+    """
+    fname = STATIC_FILES["good_dataset"]
+    dataset = Dataset(fname, "r")
+    yield dataset
+    dataset.close()
 
-    # Override __str__ and __repr__ behavior to show a copy-pastable
-    # nosetest name for ion tests.
-    #  ion.module:TestClassName.test_function_name
-    def __repr__(self):
-        name = self.id()
-        name = name.split(".")
-        if name[0] not in ["ion", "pyon"]:
-            return f"{name[-1]} ({'.'.join(name[:-1])})"
-        else:
-            return (
-                f"{name[-1]} ({'.'.join(name[:-2])} : {'.'.join(name[-2:])})"
-            )
 
-    __str__ = __repr__
+def test_og_is_loaded():
+    cs = CheckSuite()
+    cs.load_all_available_checkers()
+    assert "og" in cs.checkers
 
-    def get_dataset(self, nc_dataset):
-        """
-        Return a pairwise object for the dataset
-        """
-        if isinstance(nc_dataset, str):
-            nc_dataset = Dataset(nc_dataset, "r")
-            self.addCleanup(nc_dataset.close)
-        return nc_dataset
 
-    def setUp(self):
-
-        self.check = OGChecker()
-
-    def test_good_dataset(self):
-        """
-        Checks that a file with the proper lat and lon do work
-        """
-        dataset = self.get_dataset(STATIC_FILES["good_dataset"])
-        result = self.check.check_mandatory_variables(dataset)
-        self.assertTrue(result.value)
+def test_good_dataset(check, dataset):
+    """
+    Checks that a file with the proper lat and lon do work
+    """
+    result = check.check_mandatory_variables(dataset)
+    assert isinstance(result, Result)
+    assert result.value == (3, 14)
